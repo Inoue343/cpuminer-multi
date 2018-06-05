@@ -127,6 +127,19 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([static __uint128_t i = 100;])],
       AC_MSG_RESULT(no)
 )
 
+AC_MSG_CHECKING([Checking if running on Darwin])
+UNAME=`uname -s`
+if test "x$UNAME" = "xDarwin"; then
+  AC_DEFINE([IS_DARWIN], [1], [Set to 1 when running on Darwin - Mac OSX])
+  AC_MSG_RESULT(yes)
+  AC_SUBST([libsuffix],[".dylib"])
+  is_darwin=true
+else
+  AC_MSG_RESULT(no)
+  AC_SUBST([libsuffix],[".so"])
+  is_darwin=false
+fi
+
 # allow if <var> in Makefile.am
 AM_CONDITIONAL([WANT_JANSSON], [test x$request_jansson = xtrue])
 AM_CONDITIONAL([HAVE_WINDOWS], [test x$have_win32 = xtrue])
@@ -135,6 +148,7 @@ AM_CONDITIONAL([ARCH_x86], [test x$have_x86 = xtrue])
 AM_CONDITIONAL([ARCH_x86_64], [test x$have_x86_64 = xtrue])
 AM_CONDITIONAL([ARCH_ARM], [test x$have_arm = xtrue])
 AM_CONDITIONAL([MINGW], [test "x$OS" = "xWindows_NT"])
+AM_CONDITIONAL([DARWIN], [test x$is_darwin = xtrue])
 
 if test x$request_jansson = xtrue ; then
 	JANSSON_LIBS="compat/jansson/libjansson.a"
@@ -181,14 +195,7 @@ AC_CHECK_LIB([curl], [curl_multi_timeout],
 
 
 LIBOPENCL=""
-case "$host_os" in
-  darwin*)
-    AC_CHECK_LIB([OpenCL],[clGetPlatformIDs],[LIBOPENCL="-framework OpenCL"])
-  ;;
-  *)
-    AC_CHECK_LIB([OpenCL],[clGetPlatformIDs],[LIBOPENCL="-lOpenCL"])
-  ;;
-esac
+AC_CHECK_LIB([OpenCL],[clGetPlatformIDs],[LIBOPENCL="-lOpenCL"])
 
 DISABLE_OPENCL=false
 AC_ARG_ENABLE([opencl],

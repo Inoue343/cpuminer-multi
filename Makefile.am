@@ -138,6 +138,10 @@ vipsminer_LDADD	= @LIBCURL@ @JANSSON_LIBS@ @PTHREAD_LIBS@ @WS2_LIBS@ @LIBOPENCL@
 vipsminer_CPPFLAGS = @LIBCURL_CPPFLAGS@ $(ALL_INCLUDES)
 vipsminer_CFLAGS   = -Wno-pointer-sign -Wno-pointer-to-int-cast $(disable_flags)
 
+if DARWIN
+vipsminer_LDFLAGS += -framework OpenCL
+endif
+
 if HAVE_WINDOWS
 vipsminer_CFLAGS += -Wl,--stack,10485760
 vipsminer_LDADD += -lcrypt32 -lgdi32 -lgcc -lgcc_eh

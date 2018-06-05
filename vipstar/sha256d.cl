@@ -57,7 +57,9 @@ __kernel void sha256d_vips_ms_cl(__global uint *hash)\n
 	#ifdef VECTOR_WIDTH_1
 	__private uint4 *W_4 = (__private uint4*)W;
 	__global uint4 *hash_4 = (__global uint4*)(hash + 4);
+	#ifdef USE_UNROLL
 	#pragma unroll
+	#endif
 	for(int i = 0; i < 36; i++)\n
 		W_4[i] = hash_4[i];\n
 
@@ -80,9 +82,13 @@ __kernel void sha256d_vips_ms_cl(__global uint *hash)\n
 	W[3] = W[3] + idx * VECTOR_WIDTH;\n
 	W[3] += IOTA;
 
+	#ifdef USE_UNROLL
 	#pragma unroll
+	#endif
 	for(int j = 0; j < 32; j++){
+		#ifdef USE_UNROLL
 		#pragma unroll
+		#endif
 		for(int i = 0; i < 14; i++)\n
 			S[18 + i] = W[18 + i];\n
 
@@ -105,7 +111,9 @@ __kernel void sha256d_vips_ms_cl(__global uint *hash)\n
 		W[30] += s1(W[28]) + W[23];
 		W[31] += s1(W[29]) + W[24];
 
+		#ifdef USE_UNROLL
 		#pragma unroll
+		#endif
 		for (int i = 32; i < 64; i += 2) {
 			W[i]       = s1(W[(i - 2)]) + W[(i - 7)] + s0(W[(i - 15)]) + W[(i - 16)];
 			W[(i + 1)] = s1(W[(i - 1)]) + W[(i - 6)] + s0(W[(i - 14)]) + W[(i - 15)];
@@ -282,7 +290,9 @@ __kernel void sha256d_vips_ms_cl(__global uint *hash)\n
 
 
 
+		#ifdef USE_UNROLL
 		#pragma unroll
+		#endif
 		for(int i = 0; i < 14; i++)
 			W[18 + i] = S[18 + i];
 
@@ -318,7 +328,9 @@ __kernel void sha256d_vips_ms_cl(__global uint *hash)\n
 		S[30] = s1(S[28]) + S[23] + s0(0x00000100u);
 		S[31] = s1(S[29]) + S[24] + s0(S[16]) + 0x00000100u;
 		
+		#ifdef USE_UNROLL
 		#pragma unroll
+		#endif
 		for (int i = 32; i < 60; i += 2) {
 			S[i]   = s1(S[(i - 2)]) + S[(i - 7)] + s0(S[(i - 15)]) + S[(i - 16)];
 			S[(i + 1)] = s1(S[(i - 1)]) + S[(i - 6)] + s0(S[(i - 14)]) + S[(i - 15)];
